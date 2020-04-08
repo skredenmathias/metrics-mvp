@@ -1,0 +1,43 @@
+#
+# Development docker-compose file, supporting hot-reloading
+# for both frontend and backend code.
+#
+# The web app will be accessible at http://localhost:3000 .
+#
+# If the python or react packages have changed, or if you get errors
+# about missing python or react packages, rebuild the containers
+# with `docker-compose build`.
+#
+version: "3.7"
+services:
+  flask-dev:
+    container_name: metrics-flask-dev
+    build:
+      dockerfile: Dockerfile
+      target: flask-dev
+      context: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app/backend
+    environment:
+      FLASK_DEBUG: 1
+      TRYNAPI_URL: http://tryn-api.opentransit.city
+      OPENTRANSIT_AGENCY_IDS: muni
+  react-dev:
+    container_name: metrics-react-dev
+    image: metrics-mvp_react-dev:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: react-dev
+    volumes:
+      - ./frontend/build:/app/frontend/build
+      - ./frontend/public:/app/frontend/public
+      - ./frontend/src:/app/frontend/src
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: development
+      REACT_APP_METRICS_BASE_URL: http://localhost:5000
+    tty: true
